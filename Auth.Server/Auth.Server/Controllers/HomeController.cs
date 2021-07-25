@@ -26,7 +26,7 @@ namespace Auth.Server.Controllers
             _authService = authService;
         }
         
-        [HttpGet("Challenge")]
+        [HttpGet("≈")]
         public IActionResult Challenge(string token)
         {
             var claimsPrincipal = GetValidatedClaims(token);
@@ -50,7 +50,23 @@ namespace Auth.Server.Controllers
         public IActionResult Login(string redirectUrl, string token)
         {
             ViewBag.RedirectUrl = redirectUrl;
-            return View();
+
+            var loggedInSessions = _contextAccessor.HttpContext.Request.Cookies.Where(x => x.Key.StartsWith("session-"))
+                .Select(x => GetValidatedOwnClaims(x.Value)).ToList();
+
+            var vm = new LoginViewModel()
+            {
+                LoggedInUserSessionViewModels = loggedInSessions.Select(x =>
+                {
+                    var authTypeClaim = x.Claims.First(x => x.Type == "AuthType").Value;
+                    return new LoggedInUserSessionViewModel
+                    {
+                        Email = x.Claims.First(x => x.Type == ClaimTypes.Email).Value,
+                        AuthType = authTypeClaim
+                    };
+                }).ToList()
+            };
+            return View(vm);
         }
         
         [HttpGet("Users")]
@@ -95,7 +111,7 @@ namespace Auth.Server.Controllers
                 return View();
             }
 
-            return RedirectToAction("SuccessRedirect", new { id = provider.IdentityId, redirectUrl = model.RedirectUrl});
+            return RedirectToAction("SuccessRedirect", new { id = provider.IdentityId, email = provider.Email, authType = provider.Type, redirectUrl = model.RedirectUrl});
         }
 
         [HttpPost("Register")]
@@ -169,9 +185,12 @@ namespace Auth.Server.Controllers
         }
 
         [HttpGet("SuccessRedirect")]
-        public IActionResult SuccessRedirect(int id, string redirectUrl)
+        public IActionResult SuccessRedirect(int id, string email, AuthProviderType authType, string redirectUrl)
         {
-            var token = _authService.GenerateToken(id, _authService.GetAllRoles().Where(x => x.AuthId == id).ToList());
+            var token = _authService.GenerateToken(id, email, authType, _authService.GetAllRoles().Where(x => x.AuthId == id).ToList(), DateTime.UtcNow.AddDays(7));
+
+            Response.Cookies.Append($"session-{Guid.NewGuid()}", token);
+            
             ViewBag.RedirectUrl = $"{redirectUrl}?token={token}";
             return View();
         }
@@ -201,6 +220,25 @@ namespace Auth.Server.Controllers
                     ValidateAudience = true,
                     ValidIssuer = AuthService.AuthSiteAudience,
                     ValidAudience = AuthService.AuthServerIssuer,
+                    IssuerSigningKey = mySecurityKey
+                }, out SecurityToken validatedToken);
+            }
+            catch {}
+            return null;
+        }
+        
+        private ClaimsPrincipal GetValidatedOwnClaims(string token)
+        {
+            var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(AuthService.Secret));
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                return tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
                     IssuerSigningKey = mySecurityKey
                 }, out SecurityToken validatedToken);
             }

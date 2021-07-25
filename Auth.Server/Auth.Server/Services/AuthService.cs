@@ -57,13 +57,15 @@ namespace Auth.Server.Services
             return AuthProvidersDB.SingleOrDefault(x => x.Type == authtype && x.Email == email && x.Password == password);
         }
         
-        public string GenerateToken(int id, IList<Role> roles)
+        public string GenerateToken(int id, string email, AuthProviderType authType, IList<Role> roles, DateTime? expiry = null)
         {
             var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Secret));
             
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+                new Claim(ClaimTypes.Email, email),
+                new Claim("AuthType", authType.ToString()),
             };
             
             claims.AddRange(roles.Select(x => new Claim("Permission", x.Name)));
@@ -72,7 +74,7 @@ namespace Auth.Server.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(1),
+                Expires = !expiry.HasValue ? DateTime.UtcNow.AddMinutes(1) : expiry.Value,
                 Issuer = AuthServerIssuer,
                 Audience = AuthSiteAudience,
                 SigningCredentials = new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256Signature)

@@ -56,13 +56,15 @@ namespace Auth.SiteA.Controllers
                 x.Type, x.Value
             })}, Formatting.Indented);
 
-            var requestSetPasswordToken = GenerateToken(SelfSiteUrl, user?.AuthId);
+            var requestSetPasswordToken = GenerateToken($"{SelfSiteUrl}/LoginSuccess", user?.AuthId);
             var requestLogoutToken = GenerateToken(SelfSiteUrl, null);
+            var loginToken = GenerateToken($"{SelfSiteUrl}/LoginSuccess", null);
             
             return View("Index", new UserViewModel()
             {
                 User = user,
                 Claim = claimJson,
+                LoginUrl = $"{AuthServerUrl}/ç?token={loginToken}",
                 LogoutUrl = $"{AuthServerUrl}/logout?token={requestLogoutToken}",
                 SetPasswordUrl = user != null ? $"{AuthServerUrl}/setpassword?token={requestSetPasswordToken}" : "",
             });

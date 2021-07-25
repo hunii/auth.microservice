@@ -3,14 +3,14 @@
     ViewData["Title"] = "Login Page";
 }
 
-<div class="text-center">
+<div class="text-center" xmlns="http://www.w3.org/1999/html">
     <h1 class="display-4">Login</h1>
     <p>@ViewBag.Message</p>
     <form asp-route="login" method="post">
         <div>
             <span>Basic</span>
             <input asp-for="IsFacebookAuth" type="radio" value="false" checked>
-                <span>Facebook</span>
+            <span>Facebook</span>
             <input asp-for="IsFacebookAuth" type="radio" value="true">
         </div>
             
@@ -22,5 +22,20 @@
             <input asp-for="RedirectUrl" value="@ViewBag.RedirectUrl" hidden/>
             <input type="submit" value="Login">
         </div>
+        <div>
+            <input name="RememberMe" type="checkbox"/>
+            <span>Remember Me</span>
+        </div>
     </form>
+    <br/>
+    <br/>
+    <br/>
+    @if (Model.LoggedInUserSessionViewModels.Any())
+    {
+        <p>Logged in session</p>
+        foreach (var vm in Model.LoggedInUserSessionViewModels)
+        {
+            <p>@vm.Email</p>
+        }
+    }
 </div>

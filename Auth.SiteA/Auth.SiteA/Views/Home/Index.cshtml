@@ -26,6 +26,7 @@
         <div>Name: @Model.User.Name</div>
         <div>Email: @Model.User.Email</div>
         <pre style="text-align: left;">@Html.Raw(Model.Claim)</pre>
+        <div><a href="@Model.LoginUrl">Hard Login</a></div>
         <div><a href="@Model.SetPasswordUrl">Simulate email link for password reset</a></div>
         <div><a href="@Model.LogoutUrl">Logout</a></div>
     }
