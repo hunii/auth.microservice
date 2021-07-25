@@ -1,0 +1,32 @@
+﻿@model UserViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="text-center">
+    @if (Model.User == null)
+    {
+        <h1 class="display-4">Welcome Guest</h1>
+        <div>
+            <form asp-route="register" method="post">
+                <div>
+                    <span>Simulate Register Modal</span>
+                    <span>Email</span>
+                    <input name="Email" value=""/>
+                    <input type="submit" value="Capture Email">
+                </div>
+            </form>
+        </div>
+    }
+    else
+    {
+        <h1 class="display-4">Welcome @(string.IsNullOrEmpty(Model.User.Name) ? Model.User.Email : Model.User.Name)</h1>
+        <div>Id: @Model.User.Id</div>
+        <div>AuthId: @Model.User.AuthId</div>
+        <div>Name: @Model.User.Name</div>
+        <div>Email: @Model.User.Email</div>
+        <pre style="text-align: left;">@Html.Raw(Model.Claim)</pre>
+        <div><a href="@Model.SetPasswordUrl">Simulate email link for password reset</a></div>
+        <div><a href="@Model.LogoutUrl">Logout</a></div>
+    }
+</div>

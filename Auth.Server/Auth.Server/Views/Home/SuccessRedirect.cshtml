@@ -1,0 +1,30 @@
+﻿@model LoginViewModel
+@{
+    ViewData["Title"] = "Success Redirect . . .";
+}
+
+<div class="text-center">
+    <p id="text">challengin...</p>
+</div>
+
+@section Scripts{
+    <script>
+    function redirect(){
+        setTimeout(() => {
+            const url = '@ViewBag.RedirectUrl';
+            if (url && url !== '') {
+                document.querySelector("#text").innerHTML = 'redirecting...';
+                setTimeout(() => {
+                        window.location.replace('@ViewBag.RedirectUrl');
+                }, 2000);
+            }
+            else{
+                document.querySelector("#text").innerHTML = 'no redirect URL';
+            }
+        }, 1000);
+    }
+    document.addEventListener("DOMContentLoaded", function(event) { 
+     redirect();
+    });
+    </script>
+}

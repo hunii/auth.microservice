@@ -1,0 +1,26 @@
+﻿@model LoginViewModel
+@{
+    ViewData["Title"] = "Login Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Login</h1>
+    <p>@ViewBag.Message</p>
+    <form asp-route="login" method="post">
+        <div>
+            <span>Basic</span>
+            <input asp-for="IsFacebookAuth" type="radio" value="false" checked>
+                <span>Facebook</span>
+            <input asp-for="IsFacebookAuth" type="radio" value="true">
+        </div>
+            
+        <div>
+            <span>Email</span>
+            <input asp-for="Email" value="james@designcrowd.com"/>
+            <span>Password</span>
+            <input asp-for="Password" value="password1"/>
+            <input asp-for="RedirectUrl" value="@ViewBag.RedirectUrl" hidden/>
+            <input type="submit" value="Login">
+        </div>
+    </form>
+</div>

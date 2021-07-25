@@ -1,0 +1,51 @@
+﻿@model List<IdentityViewModel>
+@{
+    ViewData["Title"] = "Users Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Users</h1>
+    
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Identity</th>
+            <th scope="col">Providers</th>
+            <th scope="col">Roles</th>
+        </tr>
+        </thead>
+        <tbody>
+         @foreach (var identityViewModel in Model)
+            {
+                <tr>
+                    <td>
+                        <div>
+                            <p><strong>Id</strong>: @identityViewModel.Identity.Id</p>
+                            <p><strong>Token</strong>: @identityViewModel.Identity.Token</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            @foreach (var authProvider in identityViewModel.AuthProviders)
+                            {
+                                <div style="border: solid 1px #d8d8d8;">
+                                    <p><strong>Auth Type</strong>: @authProvider.Type.ToString()</p>
+                                    <p><strong>Emil</strong>: @authProvider.Email</p>
+                                    <p><strong>Password</strong>: @authProvider.Password</p>
+                                </div>
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            @foreach (var role in identityViewModel.Roles)
+                            {
+                                <p>@role.Name.ToString()</p>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
